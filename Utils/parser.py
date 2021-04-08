@@ -2,7 +2,7 @@ import argparse
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Run GraphNetCF.")
-    parser.add_argument('--weights_path', nargs='?', default='model/',
+    parser.add_argument('--weights_path', nargs='?', default='./model/',
                         help='Store model path.')
     parser.add_argument('--data_path', nargs='?', default='../Data/',
                         help='Input data path.')

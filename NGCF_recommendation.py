@@ -1,6 +1,3 @@
-import os
-
-import torch
 from torch.optim import Adam
 from tqdm import tqdm
 
@@ -10,6 +7,7 @@ from metrics import *
 
 batch_size = 4096
 BATCH_SIZE = batch_size
+log_path = './model/ngcf_model.pth'
 epochs = 400
 para = {
     'lr': 0.0001,
@@ -55,9 +53,21 @@ def main():
     optim = Adam(model.parameters(), lr=para['lr'])
     # optim = Adam(model.parameters(), lr=para['lr'],weight_decay=0.001)
     lossfn = model.BPR_loss
+
+    # 如果有保存的模型，则加载模型，并在其基础上继续训练
+    if os.path.exists(log_path):
+        checkpoint = torch.load(log_path)
+        model.load_state_dict(checkpoint['model'])
+        optim.load_state_dict(checkpoint['optimizer'])
+        start_epoch = checkpoint['epochs']
+        print('加载 epoch {} 成功！'.format(start_epoch))
+    else:
+        start_epoch = 0
+        print('无保存模型，将从头开始训练！')
+
     print('start training')
 
-    for i in range(epochs):  # n_epochs // batch_size
+    for i in range(start_epoch, epochs):  # n_epochs // batch_size
         loss_value = 0
         mf_loss_value, reg_loss_value = 0.0, 0.0
         t0 = time()
@@ -66,7 +76,7 @@ def main():
             users = torch.tensor(users).cuda()
             pos_items = torch.tensor(pos_items).cuda()
             neg_items = torch.from_numpy(np.array(neg_items)).cuda()
-            optim.zero_grad()
+            optim.zero_grad()  # init
             mf_loss, reg_loss = lossfn(users, pos_items, neg_items)
             loss = mf_loss + reg_loss
             loss.backward()
@@ -77,8 +87,10 @@ def main():
 
         if (i + 1) % 10 != 0:
             str1 = 'epoch: %d loss value:%.5f= mf loss value %.2f + reg loss value %.5f' % (
-            i, loss_value, mf_loss_value, reg_loss_value)
+                i, loss_value, mf_loss_value, reg_loss_value)
             print(str1)
+            state = {'model': model.state_dict(), 'optimizer': optim.state_dict(), 'epochs': i}
+            torch.save(state, log_path)
             continue
 
         t1 = time()

@@ -1,19 +1,20 @@
-import random as rd
-from time import time
-
+import torch
 import numpy as np
+import random as rd
+from scipy import sparse
 import scipy.sparse as sp
+from time import time
+from torch.utils.data import Dataset
 
 
 class Data(object):
     def __init__(self, path, batch_size):
+        # super(Dataset,self).__init__()
         self.path = path
         self.batch_size = batch_size
 
         train_file = path + '/train.txt'
         test_file = path + '/test.txt'
-        print("train file" + train_file)
-        print("test file" + test_file)
 
         #get number of users and items
         self.n_users, self.n_items = 0, 0
@@ -23,22 +24,22 @@ class Data(object):
         self.exist_users = []
 
         with open(train_file) as f:
-            for dataLines in f.readlines():
-                if len(dataLines) > 0:
-                    dataLines = dataLines.strip('\n').split(' ')
-                    items = [int(i) for i in dataLines[1:]]
-                    uid = int(dataLines[0])
+            for l in f.readlines():
+                if len(l) > 0:
+                    l = l.strip('\n').split(' ')
+                    items = [int(i) for i in l[1:]]
+                    uid = int(l[0])
                     self.exist_users.append(uid)
                     self.n_items = max(self.n_items, max(items))
                     self.n_users = max(self.n_users, uid)
                     self.n_train += len(items)
 
         with open(test_file) as f:
-            for dataLines in f.readlines():
-                if len(dataLines) > 0:
-                    dataLines = dataLines.strip('\n')
+            for l in f.readlines():
+                if len(l) > 0:
+                    l = l.strip('\n')
                     try:
-                        items = [int(i) for i in dataLines.split(' ')[1:]]
+                        items = [int(i) for i in l.split(' ')[1:]]
                     except Exception:
                         continue
                     self.n_items = max(self.n_items, max(items))
@@ -53,11 +54,10 @@ class Data(object):
         self.train_items, self.test_set = {}, {}
         with open(train_file) as f_train:
             with open(test_file) as f_test:
-                for dataLines in f_train.readlines():
-                    if len(dataLines) == 0:
-                        break
-                    dataLines = dataLines.strip('\n')
-                    items = [int(i) for i in dataLines.split(' ')]
+                for l in f_train.readlines():
+                    if len(l) == 0: break
+                    l = l.strip('\n')
+                    items = [int(i) for i in l.split(' ')]
                     uid, train_items = items[0], items[1:]
 
                     for i in train_items:
@@ -66,22 +66,16 @@ class Data(object):
 
                     self.train_items[uid] = train_items
 
-                for dataLines in f_test.readlines():
-                    if len(dataLines) == 0: break
-                    dataLines = dataLines.strip('\n')
+                for l in f_test.readlines():
+                    if len(l) == 0: break
+                    l = l.strip('\n')
                     try:
-                        items = [int(i) for i in dataLines.split(' ')]
+                        items = [int(i) for i in l.split(' ')]
                     except Exception:
                         continue
 
                     uid, test_items = items[0], items[1:]
                     self.test_set[uid] = test_items
-
-    def print_statistics(self):
-        print('n_users=%d, n_items=%d' % (self.n_users, self.n_items))
-        print('n_interactions=%d' % (self.n_train + self.n_test))
-        print('n_train=%d, n_test=%d, sparsity=%.5f' % (
-        self.n_train, self.n_test, (self.n_train + self.n_test) / (self.n_users * self.n_items)))
 
     def get_adj_mat(self):
         try:
@@ -140,6 +134,12 @@ class Data(object):
     def get_num_users_items(self):
         return self.n_users, self.n_items
 
+    def print_statistics(self):
+        print('n_users=%d, n_items=%d' % (self.n_users, self.n_items))
+        print('n_interactions=%d' % (self.n_train + self.n_test))
+        print('n_train=%d, n_test=%d, sparsity=%.5f' % (
+        self.n_train, self.n_test, (self.n_train + self.n_test) / (self.n_users * self.n_items)))
+
     def negative_pool(self):
         t1 = time()
         for u in self.train_items.keys():
@@ -150,12 +150,12 @@ class Data(object):
 
     def get_trainNum(self):
         return self.n_train
-
     def sample(self):
         if self.batch_size <= self.n_users:
             users = rd.sample(self.exist_users, self.batch_size)
         else:
             users = [rd.choice(self.exist_users) for _ in range(self.batch_size)]
+
 
         def sample_pos_items_for_u(u, num):
             pos_items = self.train_items[u]
@@ -189,3 +189,4 @@ class Data(object):
             neg_items += sample_neg_items_for_u(u, 1)
 
         return users, pos_items, neg_items
+

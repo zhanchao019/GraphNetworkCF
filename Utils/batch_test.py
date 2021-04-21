@@ -1,4 +1,3 @@
-
 import Utils.metrics as metrics
 from Utils.parser import parse_args
 from Utils.loadedData import *
@@ -7,10 +6,14 @@ import heapq
 
 cores = multiprocessing.cpu_count() // 2
 
-args = parse_args()
-Ks = eval(args.Ks)
+# args = parse_args()
+# Ks = eval(args.Ks)
 
-data_generator = Data(path=args.data_path + args.dataset, batch_size=args.batch_size)
+# data_generator = Data(path=args.data_path + args.dataset, batch_size=args.batch_size)
+data_generator = Data(path='../Data/gowalla', batch_size=1024)
+
+temp = 1
+'''
 USR_NUM, ITEM_NUM = data_generator.n_users, data_generator.n_items
 N_TRAIN, N_TEST = data_generator.n_train, data_generator.n_test
 BATCH_SIZE = args.batch_size
@@ -185,3 +188,4 @@ def test(model, users_to_test, drop_flag=False, batch_test_flag=False):
     assert count == n_test_users
     pool.close()
     return result
+'''

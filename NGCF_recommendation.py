@@ -67,7 +67,7 @@ def main():
 
     print('start training')
 
-    for i in range(start_epoch, epochs):  # n_epochs // batch_size
+    for i in range(start_epoch + 1, epochs):  # n_epochs // batch_size
         loss_value = 0
         mf_loss_value, reg_loss_value = 0.0, 0.0
         t0 = time()

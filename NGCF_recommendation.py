@@ -1,19 +1,12 @@
+import os
+
+import torch
+from torch.optim import Adam
+from tqdm import tqdm
+
 from NGCFModel import *
 from data_process import *
-import torch
-from torch import nn as nn
-from scipy.sparse import coo_matrix
-import numpy as np
-from numpy import diag
-from torch.utils.data import DataLoader
-from torch.utils.data import random_split
-from torch.optim import Adam
-from torch.nn import MSELoss
 from metrics import *
-import os
-import datetime
-
-os.environ['CUDA_VISIBLE_DEVICES'] = '3'
 
 batch_size = 4096
 BATCH_SIZE = batch_size
@@ -27,7 +20,7 @@ para = {
 def test(model, users_list):
     all_precision_20, all_recall_20, all_precision_10, all_recall_10 = [], [], [], []
     count = 0
-    for j in range(BATCH_SIZE):
+    for j in tqdm(range(BATCH_SIZE), desc="testing..."):
         id = users_list[np.random.randint(data.n_users, size=1)[0]]
         item_list = list(set(range(data.n_items)) - set(data.train_items[id]))
         # print(len(item_list))
@@ -83,7 +76,8 @@ def main():
             reg_loss_value += reg_loss.item()
 
         if (i + 1) % 10 != 0:
-            str1 = 'epoch: %d %.5f=%.2f+%.5f' % (i, loss_value, mf_loss_value, reg_loss_value)
+            str1 = 'epoch: %d loss value:%.5f= mf loss value %.2f + reg loss value %.5f' % (
+            i, loss_value, mf_loss_value, reg_loss_value)
             print(str1)
             continue
 

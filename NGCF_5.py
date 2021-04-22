@@ -9,7 +9,7 @@ from parser import *
 parser = parse_args()
 batch_size = parser.batchsize
 
-log_path = parser.weights_path + parser.dataset + '5k' + parser.model + '.pth'
+log_path = parser.weights_path + parser.dataset + '5k_' + parser.model + '.pth'
 epochs = parser.epoch
 para = {
     'lr': parser.lr,

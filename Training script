@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=1 python3 NGCF_recommendation.py --dataset='amazon-book' --epoch=400 --model='NGCF'
+CUDA_VISIBLE_DEVICES=1 python3 NGCF_recommendation.py --dataset='amazon-book' --epoch=400 --model='NGCF' --batchsize=8192
 CUDA_VISIBLE_DEVICES=2 python3 NGCF_recommendation.py --dataset='cora' --epoch=400 --model='NGCF'
 CUDA_VISIBLE_DEVICES=3 python3 NGCF_recommendation.py --dataset='gowalla' --epoch=1000 --model='NGCF'
 
@@ -8,3 +8,10 @@ git clone https://github.com.cnpmjs.org/zhanchao019/GraphNetworkCF.git
 cp -r /GraphNetworkCF/model/* /mnt
 //recovery
 cp -r /mnt/* /GraphNetworkCF/model/
+
+//git update
+git fetch origin master //从远程的origin仓库的master分支下载代码到本地的origin master
+
+git log -p master.. origin/master//比较本地的仓库和远程参考的区别
+
+git merge origin/master//把远程下载下来的代码合并到本地仓库，远程的和本地的合并

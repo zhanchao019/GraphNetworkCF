@@ -9,6 +9,8 @@ def parse_args():
                         help='Input data path.')
     parser.add_argument('--dataset', nargs='?', default='gowalla',
                         help='Choose a dataset from {gowalla, cora, amazon-book}')
+    parser.add_argument('--model', nargs='?', default='NGCF',
+                        help='Choose a Alg from {NGCF, LightingGCN, etc}')
 
     parser.add_argument('--verbose', type=int, default=1,
                         help='Interval of evaluation.')

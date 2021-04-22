@@ -4,21 +4,23 @@ from tqdm import tqdm
 from NGCFModel import *
 from data_process import *
 from metrics import *
+from parser import *
 
-batch_size = 4096
-BATCH_SIZE = batch_size
-log_path = './model/ngcf_model.pth'
-epochs = 400
+parser = parse_args()
+batch_size = parser.batchsize
+
+log_path = parser.weights_path + parser.dataset + '_' + parser.model + '.pth'
+epochs = parser.epoch
 para = {
-    'lr': 0.0001,
-    'train': 0.8
+    'lr': parser.lr,
+    'train': parser.regs
 }
 
 
 def test(model, users_list):
     all_precision_20, all_recall_20, all_precision_10, all_recall_10 = [], [], [], []
     count = 0
-    for j in tqdm(range(BATCH_SIZE), desc="testing..."):
+    for j in tqdm(range(batch_size), desc="testing..."):
         id = users_list[np.random.randint(data.n_users, size=1)[0]]
         item_list = list(set(range(data.n_items)) - set(data.train_items[id]))
         # print(len(item_list))
@@ -49,7 +51,10 @@ def test(model, users_list):
 
 
 def main():
-    model = NGCF(user_nums, item_nums, 64, [64, 64, 64], [0.1, 0.1, 0.1], norm_adj, 4096, 0.00001).cuda()
+    if parser.model == 'NGCF':
+        model = NGCF(user_nums, item_nums, parser.embed_size, parser.layer_size, parser.mess_dropout, norm_adj,
+                     batch_size, parser.regs).cuda()
+
     optim = Adam(model.parameters(), lr=para['lr'])
     # optim = Adam(model.parameters(), lr=para['lr'],weight_decay=0.001)
     lossfn = model.BPR_loss
@@ -89,7 +94,7 @@ def main():
             mf_loss_value += mf_loss.item()
             reg_loss_value += reg_loss.item()
 
-        if (i + 1) % 5 != 0:
+        if (i + 1) % parser.save_step != 0:
             str1 = 'epoch: %d loss value:%.5f= mf loss value %.2f + reg loss value %.5f' % (
                 i, loss_value, mf_loss_value, reg_loss_value)
             print(str1)
@@ -157,7 +162,7 @@ def main():
 
 if __name__ == '__main__':
     cur_dir = os.getcwd()
-    path = './data/Gowalla'
+    path = parser.data_path + parser.dataset
     data = Data(path, batch_size)
     # data.negative_pool()
     user_nums, item_nums = data.get_num_users_items()

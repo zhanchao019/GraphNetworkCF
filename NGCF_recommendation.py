@@ -21,7 +21,14 @@ def test(model, users_list):
     all_precision_20, all_recall_20, all_precision_10, all_recall_10 = [], [], [], []
     count = 0
     for j in tqdm(range(batch_size), desc="testing..."):
-        id = users_list[np.random.randint(data.n_users, size=1)[0]]
+        try:
+            id = users_list[np.random.randint(data.n_users, size=1)[0]]
+        except IndexError:
+            try:
+                id = users_list[np.random.randint(data.n_users, size=1)[0]]
+            except IndexError:
+                id = users_list[np.random.randint(data.n_users, size=1)[0]]
+
         item_list = list(set(range(data.n_items)) - set(data.train_items[id]))
         # print(len(item_list))
         users = [id for j in range(len(item_list))]

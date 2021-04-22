@@ -80,7 +80,7 @@ def main():
         loss_value = 0
         mf_loss_value, reg_loss_value = 0.0, 0.0
         t0 = time()
-        for j in range(n_epochs // batch_size + 1):
+        for j in tqdm(range(n_epochs // batch_size + 1), desc="training..."):
             users, pos_items, neg_items = data.sample()
             users = torch.tensor(users).cuda()
             pos_items = torch.tensor(pos_items).cuda()

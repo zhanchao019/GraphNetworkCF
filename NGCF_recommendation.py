@@ -53,6 +53,7 @@ def main():
     optim = Adam(model.parameters(), lr=para['lr'])
     # optim = Adam(model.parameters(), lr=para['lr'],weight_decay=0.001)
     lossfn = model.BPR_loss
+    trainFlag = False
 
     # 如果有保存的模型，则加载模型，并在其基础上继续训练
     if os.path.exists(log_path):
@@ -60,9 +61,12 @@ def main():
         model.load_state_dict(checkpoint['model'])
         optim.load_state_dict(checkpoint['optimizer'])
         start_epoch = checkpoint['epochs']
+        trainingData = np.array(checkpoint['trainingData'])
         print('加载 epoch {} 成功！'.format(start_epoch))
     else:
         start_epoch = 0
+        trainFlag = True
+        trainingData = np.array([])
         print('无保存模型，将从头开始训练！')
 
     print('start training')
@@ -85,12 +89,11 @@ def main():
             mf_loss_value += mf_loss.item()
             reg_loss_value += reg_loss.item()
 
-        if (i + 1) % 10 != 0:
+        if (i + 1) % 5 != 0:
             str1 = 'epoch: %d loss value:%.5f= mf loss value %.2f + reg loss value %.5f' % (
                 i, loss_value, mf_loss_value, reg_loss_value)
             print(str1)
-            state = {'model': model.state_dict(), 'optimizer': optim.state_dict(), 'epochs': i}
-            torch.save(state, log_path)
+
             continue
 
         t1 = time()
@@ -100,8 +103,20 @@ def main():
         t2 = time()
         print('test time %.2f s' % (t2 - t1))
         str1 = 'epoch: %d %.2f=%.2f+%.2f %.5f %.5f %.5f %.5f' % (
-        i, loss_value, mf_loss_value, reg_loss_value, precision_20, recall_20, precision_10, recall_10)
+            i, loss_value, mf_loss_value, reg_loss_value, precision_20, recall_20, precision_10, recall_10)
         print(str1)
+        if trainFlag == True:
+            trainingData = [i, loss_value, mf_loss_value, reg_loss_value, precision_20, recall_20, precision_10,
+                            recall_10]
+            trainFlag = False
+        else:
+            trainingData = np.vstack((trainingData,
+                                      [i, loss_value, mf_loss_value, reg_loss_value, precision_20, recall_20,
+                                       precision_10, recall_10]))
+        state = {'model': model.state_dict(), 'optimizer': optim.state_dict(), 'epochs': i,
+                 'trainingData': trainingData}
+        torch.save(state, log_path)
+        print(trainingData)
 
     all_precision_10, all_recall_10 = [], []
     all_precision_20, all_recall_20 = [], []
@@ -136,8 +151,8 @@ def main():
         all_ndcg_20.append(ndcg_20)
         print('recall_20: %.5f ndcg_20: %.5f' % (recall_20, ndcg_20))
         print('uid %d: pre@10 %.5f recall@10 %.5f, pre@20 %.5f recall@20 %.5f ndcg@20 %.5f' % (
-        i, np.mean(all_precision_10), np.mean(all_recall_10), \
-        np.mean(all_precision_20), np.mean(all_recall_20), np.mean(all_ndcg_20)))
+            i, np.mean(all_precision_10), np.mean(all_recall_10), \
+            np.mean(all_precision_20), np.mean(all_recall_20), np.mean(all_ndcg_20)))
 
 
 if __name__ == '__main__':

@@ -5,7 +5,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Run GraphNetCF.")
     parser.add_argument('--weights_path', nargs='?', default='./model/',
                         help='Store model path.')
-    parser.add_argument('--data_path', nargs='?', default='../Data/',
+    parser.add_argument('--data_path', nargs='?', default='./Data/',
                         help='Input data path.')
     parser.add_argument('--dataset', nargs='?', default='gowalla',
                         help='Choose a dataset from {gowalla, cora, amazon-book}')

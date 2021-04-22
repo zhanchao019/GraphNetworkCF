@@ -127,6 +127,7 @@ def main():
     all_precision_20, all_recall_20 = [], []
     all_ndcg_20 = []
     pred20 = np.zeros((user_nums, 20))
+    '''
     for i in range(user_nums):
         item_list = list(set(range(data.n_users)) - set(data.train_items[i]))
         # print(len(item_list))
@@ -154,11 +155,13 @@ def main():
         all_precision_20.append(precision_20)
         all_recall_20.append(recall_20)
         all_ndcg_20.append(ndcg_20)
+        
+        
         print('recall_20: %.5f ndcg_20: %.5f' % (recall_20, ndcg_20))
         print('uid %d: pre@10 %.5f recall@10 %.5f, pre@20 %.5f recall@20 %.5f ndcg@20 %.5f' % (
-            i, np.mean(all_precision_10), np.mean(all_recall_10), \
+            i, np.mean(all_precision_10), np.mean(all_recall_10), 
             np.mean(all_precision_20), np.mean(all_recall_20), np.mean(all_ndcg_20)))
-
+    '''
 
 if __name__ == '__main__':
     cur_dir = os.getcwd()

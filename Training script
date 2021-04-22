@@ -1,3 +1,10 @@
-CUDA_VISIBLE_DEVICES=1 python3 NGCF_recommendation.py --dataset='amazon-book' --epoch=1000 --model='NGCF'
-CUDA_VISIBLE_DEVICES=2 python3 NGCF_recommendation.py --dataset='cora' --epoch=1000 --model='NGCF'
+CUDA_VISIBLE_DEVICES=1 python3 NGCF_recommendation.py --dataset='amazon-book' --epoch=400 --model='NGCF'
+CUDA_VISIBLE_DEVICES=2 python3 NGCF_recommendation.py --dataset='cora' --epoch=400 --model='NGCF'
 CUDA_VISIBLE_DEVICES=3 python3 NGCF_recommendation.py --dataset='gowalla' --epoch=1000 --model='NGCF'
+
+git clone https://github.com.cnpmjs.org/zhanchao019/GraphNetworkCF.git
+
+//save
+cp -r /GraphNetworkCF/model/* /mnt
+//recovery
+cp -r /mnt/* /GraphNetworkCF/model/

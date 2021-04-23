@@ -8,7 +8,7 @@ def parse_args():
     parser.add_argument('--data_path', nargs='?', default='./Data/',
                         help='Input data path.')
     parser.add_argument('--dataset', nargs='?', default='gowalla',
-                        help='Choose a dataset from {gowalla, cora, amazon-book}')
+                        help='Choose a dataset from {gowalla, yelp2018, amazon-book}')
     parser.add_argument('--model', nargs='?', default='NGCF',
                         help='Choose a Alg from {NGCF, LightingGCN, etc}')
 
